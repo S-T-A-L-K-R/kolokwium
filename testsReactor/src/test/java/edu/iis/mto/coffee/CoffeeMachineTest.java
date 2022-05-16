@@ -3,6 +3,8 @@ package edu.iis.mto.coffee;
 import static org.hamcrest.Matchers.equalTo;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.when;
 
 import org.hamcrest.MatcherAssert;
@@ -18,6 +20,7 @@ import edu.iis.mto.coffee.machine.CoffeeMachine;
 import edu.iis.mto.coffee.machine.CoffeeOrder;
 import edu.iis.mto.coffee.machine.MilkProvider;
 import edu.iis.mto.coffee.machine.GrinderException;
+import edu.iis.mto.coffee.machine.HeaterException;
 
 @ExtendWith(MockitoExtension.class)
 class CoffeeMachineTest {
@@ -62,7 +65,6 @@ class CoffeeMachineTest {
     void grinderThrowsGrinderException() throws GrinderException
     {
         when(receipes.getReceipe(any())).thenReturn(bigLatteCoffeeReceipe);
-
         when(grinder.grind(any())).thenThrow(new GrinderException());
         Coffee coffee = coffeeMachine.make(bigLatteCoffeeOrder);
 
@@ -73,7 +75,6 @@ class CoffeeMachineTest {
     void grinderDoesntWork() throws GrinderException
     {
         when(receipes.getReceipe(any())).thenReturn(bigLatteCoffeeReceipe);
-
         when(grinder.grind(any())).thenReturn(false);
         Coffee coffee = coffeeMachine.make(bigLatteCoffeeOrder);
 
@@ -81,10 +82,11 @@ class CoffeeMachineTest {
         assertEquals(coffee.getStatus(), Status.ERROR);
     }
     @Test
-    void milkProviderThrowsHeaterException() throws GrinderException
+    void milkProviderThrowsHeaterException() throws GrinderException, HeaterException
     {
         when(receipes.getReceipe(any())).thenReturn(bigLatteCoffeeReceipe);
         when(grinder.grind(any())).thenReturn(true);
+        // doThrow(new HeaterException()).when(milkProvider.heat());
         Coffee coffee = coffeeMachine.make(bigLatteCoffeeOrder);
 
         assertEquals(coffee.getMessage(), null);
